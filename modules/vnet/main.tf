@@ -9,17 +9,17 @@ resource "azurerm_virtual_network" "main" {
   tags                = var.tags
 
   # Optional DDoS Protection
-  ddos_protection_plan {
-    id     = null # Specify a DDoS Plan ID if var.enable_ddos_protection is true (requires creating/referencing the plan outside the module typically)
-    enable = var.enable_ddos_protection
-  }
+  #ddos_protection_plan {
+    #id     = null # Specify a DDoS Plan ID if var.enable_ddos_protection is true (requires creating/referencing the plan outside the module typically)
+    #enable = var.enable_ddos_protection
+  #}
 
-  lifecycle {
-    ignore_changes = [
+  #lifecycle {
+    #ignore_changes = [
       # Ignore changes to DDoS settings if not explicitly enabled/managed by this module run
-      ddos_protection_plan,
-    ]
-  }
+      #ddos_protection_plan,
+    #]
+  #}
 }
 
 # Create Network Security Groups for each subnet that defines rules

@@ -59,23 +59,23 @@ variable "vnet_subnets" {
   default = {
     "default" = { # Example subnet
       address_prefix = "10.10.1.0/24"
-      nsg_rules = [] # No custom rules for this example subnet
+      nsg_rules      = [] # No custom rules for this example subnet
     },
     "vm_subnet" = { # Subnet for the VM
-       address_prefix = "10.10.2.0/24"
-       nsg_rules = [
-         {
-            name                       = "AllowSSHInbound"
-            priority                   = 100
-            direction                  = "Inbound"
-            access                     = "Allow"
-            protocol                   = "Tcp"
-            source_port_range          = "*"
-            destination_port_range     = "22"
-            source_address_prefix      = "*" # WARNING: In production, restrict this to specific IPs!
-            destination_address_prefix = "*"
-          }
-       ]
+      address_prefix = "10.10.2.0/24"
+      nsg_rules = [
+        {
+          name                       = "AllowSSHInbound"
+          priority                   = 100
+          direction                  = "Inbound"
+          access                     = "Allow"
+          protocol                   = "Tcp"
+          source_port_range          = "*"
+          destination_port_range     = "22"
+          source_address_prefix      = "*" # WARNING: In production, restrict this to specific IPs!
+          destination_address_prefix = "*"
+        }
+      ]
     }
   }
 }

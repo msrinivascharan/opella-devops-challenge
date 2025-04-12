@@ -2,12 +2,12 @@
 
 locals {
   # Define common values and naming conventions
-  resource_group_name = lower("${var.resource_group_name_prefix}-${var.environment}-${var.location}-rg")
-  vnet_name           = lower("${var.resource_group_name_prefix}-${var.environment}-${var.location}-vnet")
+  resource_group_name  = lower("${var.resource_group_name_prefix}-${var.environment}-${var.location}-rg")
+  vnet_name            = lower("${var.resource_group_name_prefix}-${var.environment}-${var.location}-vnet")
   storage_account_name = lower("${var.resource_group_name_prefix}${var.environment}${var.location}sa") # Must be globally unique, no hyphens
-  vm_name             = lower("${var.resource_group_name_prefix}-${var.environment}-${var.location}-vm")
-  nic_name            = lower("${var.resource_group_name_prefix}-${var.environment}-${var.location}-nic")
-  public_ip_name      = lower("${var.resource_group_name_prefix}-${var.environment}-${var.location}-pip")
+  vm_name              = lower("${var.resource_group_name_prefix}-${var.environment}-${var.location}-vm")
+  nic_name             = lower("${var.resource_group_name_prefix}-${var.environment}-${var.location}-nic")
+  public_ip_name       = lower("${var.resource_group_name_prefix}-${var.environment}-${var.location}-pip")
 
   common_tags = {
     Environment = var.environment
@@ -53,9 +53,9 @@ resource "azurerm_storage_account" "main" {
 }
 
 resource "azurerm_storage_container" "example" {
-   name                  = "my-example-container"
-   storage_account_name  = azurerm_storage_account.main.name
-   container_access_type = "private" # or "blob", "container"
+  name                  = "my-example-container"
+  storage_account_name  = azurerm_storage_account.main.name
+  container_access_type = "private" # or "blob", "container"
 }
 
 
@@ -67,7 +67,7 @@ resource "azurerm_public_ip" "vm_pip" {
   name                = local.public_ip_name
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
-  allocation_method   = "Static" # Or Dynamic
+  allocation_method   = "Static"   # Or Dynamic
   sku                 = "Standard" # Required for availability zones, generally recommended
   tags                = local.common_tags
 }
@@ -113,7 +113,7 @@ resource "azurerm_linux_virtual_machine" "main" {
   source_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-jammy" # Ubuntu 22.04 LTS
-    sku       = "22_04-lts-gen2"             # Use Gen2 where possible
+    sku       = "22_04-lts-gen2"               # Use Gen2 where possible
     version   = "latest"
   }
 

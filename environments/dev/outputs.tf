@@ -17,8 +17,8 @@ output "dev_vm_public_ip" {
 }
 
 output "dev_vm_private_ip" {
-    description = "Private IP address of the development VM NIC."
-    value       = azurerm_network_interface.vm_nic.private_ip_address
+  description = "Private IP address of the development VM NIC."
+  value       = azurerm_network_interface.vm_nic.private_ip_address
 }
 
 output "dev_storage_account_name" {
