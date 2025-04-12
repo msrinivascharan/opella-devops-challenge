@@ -54,11 +54,15 @@ jobs:
 
       - name: Terraform Init
         id: init
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        run: terraform init -input=false
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=your-resource-group-name" \
+            -backend-config="storage_account_name=your-storage-account-name" \
+            -backend-config="container_name=terraformstate" \
+            -backend-config="key=terraform.tfstate" \
+            -backend-config="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
+            -backend-config="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
+            -backend-config="client_secret=${{ secrets.AZURE_CLIENT_SECRET }}"
         working-directory: ${{ env.TF_WORKING_DIR }}
 
 
