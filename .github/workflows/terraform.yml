@@ -54,8 +54,12 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init # REMOVED -backend=false. REQUIRES backend configuration (e.g., backend.tf)
-        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform init -backend-config="TF_VAR_tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
+                         -backend-config="TF_VAR_client_id=${{ secrets.AZURE_CLIENT_ID }}" \
+                         -backend-config="TF_VAR_client_secret=${{ secrets.AZURE_CLIENT_SECRET }}" \
+                         -input=false
+          working-directory: ${{ env.TF_WORKING_DIR }}
 
 
       - name: Terraform Validate
