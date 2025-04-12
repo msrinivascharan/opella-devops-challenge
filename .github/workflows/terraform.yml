@@ -70,7 +70,7 @@ jobs:
         run: |
           # Ensure SSH key variable is set - get from secrets or provide default for plan
           # If not using secrets, you might need a dummy value for planning phase:
-          export TF_VAR_vm_admin_ssh_public_key="ssh-rsa AAAA..." # Dummy or fetched from secrets
+          export TF_VAR_vm_admin_ssh_public_key="${{ secrets.VM_ADMIN_SSH_PUBLIC_KEY }}" # Public key from key pair to use in VM auth
           terraform plan -no-color -input=false -out=tfplan
         working-directory: ${{ env.TF_WORKING_DIR }}
         # In a PR, you might want to add plan output as a comment
