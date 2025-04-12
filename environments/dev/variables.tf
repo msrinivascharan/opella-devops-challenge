@@ -31,6 +31,12 @@ variable "vm_admin_ssh_public_key" {
   # No default - should be provided securely
 }
 
+
+
+variable "tenant_id" {}
+variable "client_id" {}
+variable "client_secret" {}
+
 # --- VNET Module Specific Variables ---
 # We can define defaults here or rely solely on terraform.tfvars
 
