@@ -26,6 +26,11 @@ env:
   TF_WORKING_DIR: ./environments/dev
   # Ensure secrets are available for both plan and apply
   TF_VAR_vm_admin_ssh_public_key: ${{ secrets.VM_ADMIN_SSH_PUBLIC_KEY }}
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  
 
 jobs:
   terraform_plan_apply: # Renamed job to reflect both actions
@@ -54,7 +59,16 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init # REMOVED -backend=false. REQUIRES backend configuration (e.g., backend.tf)
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=rg-test-2" \
+            -backend-config="storage_account_name=tfstateopella120425" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=terraform.tfstate" \
+            -backend-config="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
+            -backend-config="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
+            -backend-config="client_secret=${{ secrets.AZURE_CLIENT_SECRET }}" \
+            -backend-config="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}"
         working-directory: ${{ env.TF_WORKING_DIR }}
 
 
