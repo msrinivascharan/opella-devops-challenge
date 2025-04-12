@@ -56,9 +56,7 @@ jobs:
         id: init
         run: terraform init # REMOVED -backend=false. REQUIRES backend configuration (e.g., backend.tf)
         working-directory: ${{ env.TF_WORKING_DIR }}
-        env:
-           # Add ARM_ACCESS_KEY or other backend credentials if needed and configured via env vars
-           # ARM_ACCESS_KEY: ${{ secrets.TF_STATE_STORAGE_KEY }} # Example if using access key for backend
+
 
       - name: Terraform Validate
         id: validate
