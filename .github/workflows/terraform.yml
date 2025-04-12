@@ -19,7 +19,7 @@ on:
       - '.github/workflows/terraform.yml'
 
 # Allows manual triggering from the GitHub Actions UI
-on:
+
   workflow_dispatch:
 
 env:
