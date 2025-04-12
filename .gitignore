@@ -1,3 +1,15 @@
+# Terraform files
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfplan
+*.tfvars
+
+# Ignore IDE/OS files
+.vscode/
+*.DS_Store
+
+###############################
 # Local .terraform directories
 **/.terraform/*
 
