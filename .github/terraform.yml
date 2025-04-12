@@ -1,1 +1,92 @@
-# GitHub Actions workflow
+# .github/workflows/terraform.yml
+name: 'Terraform CI for Dev Environment'
+
+on:
+  push:
+    branches:
+      - main # Trigger on pushes to main
+      - feature1
+    paths:
+      - 'environments/dev/**' # Only trigger if dev env code changes
+      - 'modules/vnet/**'     # Or if the vnet module changes
+      - '.github/workflows/terraform.yml' # Or if the workflow itself changes
+  pull_request:
+    branches:
+      - main # Trigger on PRs targeting main
+    paths:
+      - 'environments/dev/**'
+      - 'modules/vnet/**'
+      - '.github/workflows/terraform.yml'
+
+# Allows manual triggering from the GitHub Actions UI
+workflow_dispatch:
+
+env:
+  # Set the working directory for Terraform commands
+  TF_WORKING_DIR: ./environments/dev
+  # If using TF_VAR variables for secrets, define them in GitHub Secrets
+  # TF_VAR_vm_admin_ssh_public_key: ${{ secrets.DEV_VM_ADMIN_SSH_PUB_KEY }}
+
+jobs:
+  terraform:
+    name: 'Terraform Plan (Dev)'
+    runs-on: ubuntu-latest
+    environment: development # Optional: Link to GitHub Environment for protection rules/secrets
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.5 # Or your desired version
+          # terraform_wrapper: true # Optional: wraps subsequent commands
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} # Store Azure SPN credentials as a GitHub secret **
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive -diff
+        continue-on-error: true # Allow pipeline to continue to report errors
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend=false # Use -backend=false for plan-only CI if state is managed elsewhere or not needed for plan
+        # Or configure backend using secrets if required for plan (e.g., data sources needing state)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          # Ensure SSH key variable is set - get from secrets or provide default for plan
+          # If not using secrets, you might need a dummy value for planning phase:
+          export TF_VAR_vm_admin_ssh_public_key="ssh-rsa AAAA..." # Dummy or fetched from secrets
+          terraform plan -no-color -input=false -out=tfplan
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        # In a PR, you might want to add plan output as a comment
+        continue-on-error: false # Fail if plan fails
+
+      # Optional: Add steps for linters (tflint) or security scanners (checkov) here
+
+      # Example: Add plan output to PR comment (requires additional permissions/actions)
+      # - name: Comment Plan Output on PR
+      #   if: github.event_name == 'pull_request'
+      #   uses: actions/github-script@v6
+      #   with:
+      #     script: |
+      #       const output = `#### Terraform Plan Output \n\`\`\`\n${{ steps.plan.outputs.stdout }}\n\`\`\``;
+      #       github.rest.issues.createComment({
+      #         issue_number: context.issue.number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: output
+      #       })
