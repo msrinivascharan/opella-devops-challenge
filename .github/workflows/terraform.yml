@@ -1,0 +1,77 @@
+# .github/workflows/terraform.yml
+name: 'Terraform CI/CD for Dev Environment' # Renamed to reflect CD aspect
+
+on:
+  push:
+    branches:
+      - main # Trigger on pushes to main (for Plan and potentially Apply)
+      - feature1 # Trigger on pushes to feature branches (for Plan only)
+    paths:
+      - 'environments/dev/**'
+      - 'modules/vnet/**'
+      - '.github/workflows/terraform.yml'
+  pull_request:
+    branches:
+      - main # Trigger on PRs targeting main (for Plan only)
+    paths:
+      - 'environments/dev/**'
+      - 'modules/vnet/**'
+      - '.github/workflows/terraform.yml'
+
+  # Allows manual triggering from the GitHub Actions UI
+  workflow_dispatch:
+
+env:
+  # Set the working directory for Terraform commands
+  TF_WORKING_DIR: ./environments/dev
+  # Ensure secrets are available for both plan and apply
+  TF_VAR_vm_admin_ssh_public_key: ${{ secrets.VM_ADMIN_SSH_PUBLIC_KEY }}
+
+jobs:
+  terraform_plan_apply: # Renamed job to reflect both actions
+    name: 'Terraform Plan and Apply (Dev)' # Renamed job display name
+    runs-on: ubuntu-latest
+    environment: development # Optional: Link to GitHub Environment for protection rules/secrets
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.5 # Or your desired version
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }} # Store Azure SPN credentials as a GitHub secret
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive -diff
+        continue-on-error: true # Allow pipeline to continue to report errors
+
+      - name: Terraform Init
+        id: init
+        run: terraform init # REMOVED -backend=false. REQUIRES backend configuration (e.g., backend.tf)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -input=false -out=tfplan
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        continue-on-error: false # Fail the job if plan fails
+
+      - name: Terraform Apply
+        # This step only runs on pushes to the 'main' branch.
+        # It will be skipped automatically for PRs or pushes to other branches.
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -input=false -auto-approve tfplan
+        working-directory: ${{ env.TF_WORKING_DIR }}
