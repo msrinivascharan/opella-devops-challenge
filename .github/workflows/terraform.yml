@@ -19,7 +19,8 @@ on:
       - '.github/workflows/terraform.yml'
 
 # Allows manual triggering from the GitHub Actions UI
-#workflow_dispatch:
+on:
+  workflow_dispatch:
 
 env:
   # Set the working directory for Terraform commands
