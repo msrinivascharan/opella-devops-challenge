@@ -61,9 +61,9 @@ jobs:
         id: init
         run: |
           terraform init \
-            -backend-config="resource_group_name=your-resource-group-name" \
-            -backend-config="storage_account_name=your-storage-account-name" \
-            -backend-config="container_name=terraformstate" \
+            -backend-config="resource_group_name=rg-test-2" \
+            -backend-config="storage_account_name=tfstateopella120425" \
+            -backend-config="container_name=tfstate" \
             -backend-config="key=terraform.tfstate" \
             -backend-config="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
             -backend-config="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
