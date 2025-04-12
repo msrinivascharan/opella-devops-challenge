@@ -77,6 +77,3 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -input=false -auto-approve tfplan
         working-directory: ${{ env.TF_WORKING_DIR }}
-        env:
-           # Ensure apply has access to all required TF_VARs defined at the job level or passed here
-           # ARM_ACCESS_KEY: ${{ secrets.TF_STATE_STORAGE_KEY }} # Example if using access key for backend
